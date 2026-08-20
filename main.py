@@ -1,62 +1,30 @@
-import random
 from rich.console import Console
-from rich.panel import Panel
 from rich.prompt import Prompt
+from src.game import WordleGame
+from src.ui import WordleUI
 
 console = Console()
 
-WORD_LIST = ["LOGIK", "KODING", "CYBER", "PINTU", "TUGAS", "PRAKT"]
+def main():
+    WordleUI.show_banner()
+    game = WordleGame()
 
-def print_banner():
-    console.print(
-        Panel.fit(
-            "[bold cyan]WORDLE CLI GAME[/bold cyan]\n[dim]Tebak kata 5 huruf dalam 6 kali percobaan[/dim]",
-            border_style="cyan"
-        )
-    )
-
-def evaluate_guess(guess, target):
-    feedback = []
-    for i in range(len(guess)):
-        if guess[i] == target[i]:
-            # Hijau: Huruf & Posisi Benar
-            feedback.append(f"[white on green] {guess[i]} [/white on green]")
-        elif guess[i] in target:
-            # Kuning: Huruf Benar, Posisi Salah
-            feedback.append(f"[black on yellow] {guess[i]} [/black on yellow]")
-        else:
-            # Abu-abu: Huruf Tidak Ada
-            feedback.append(f"[white on bright_black] {guess[i]} [/white on bright_black]")
-    return " ".join(feedback)
-
-def play():
-    print_banner()
-    target = random.choice(WORD_LIST)
-    attempts = 6
-    history = []
-
-    while attempts > 0:
-        guess = Prompt.ask(f"\n[bold]Tebakan kamu ({attempts} sisa)[/bold]").upper().strip()
-
-        if len(guess) != 5:
-            console.print("[bold red]❌ Kata harus terdiri dari 5 huruf![/bold red]")
+    while not game.is_game_over():
+        guess = Prompt.ask(f"\nTebakan kamu (Sisa {game.attempts})")
+        valid, msg = game.validate_guess(guess)
+        
+        if not valid:
+            console.print(f"[bold red]❌ {msg}[/bold red]")
             continue
 
-        result = evaluate_guess(guess, target)
-        history.append(result)
+        game.make_move(guess)
+        WordleUI.render_board(game)
 
-        # Tampilkan riwayat papan tebakan
-        console.print("\n[bold]Papan Permainan:[/bold]")
-        for board_line in history:
-            console.print(board_line)
-
-        if guess == target:
-            console.print("\n🎉 [bold green]SELAMAT! Tebakan kamu benar![/bold green]\n")
+        if game.is_won():
+            console.print(f"\n🎉 [bold green]EXCELLENT! Kamu berhasil menebak kata: {game.target_word}[/bold green]\n")
             return
 
-        attempts -= 1
-
-    console.print(f"\n💀 [bold red]GAME OVER![/bold red] Kata yang benar adalah: [bold cyan]{target}[/bold cyan]\n")
+    console.print(f"\n💀 [bold red]GAME OVER![/bold red] Kata yang benar adalah: [bold cyan]{game.target_word}[/bold cyan]\n")
 
 if __name__ == "__main__":
-    play()
+    main()
