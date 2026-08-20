@@ -1,30 +1,30 @@
 from rich.console import Console
 from rich.prompt import Prompt
-from src.game import WordleGame
-from src.ui import WordleUI
+from src.game import ScrambleGame
+from src.ui import ScrambleUI
 
 console = Console()
 
 def main():
-    WordleUI.show_banner()
-    game = WordleGame()
+    game = ScrambleGame()
+    ScrambleUI.show_banner(game.scrambled_word)
 
     while not game.is_game_over():
-        guess = Prompt.ask(f"\nTebakan kamu (Sisa {game.attempts})")
+        guess = Prompt.ask(f"\n[bold]Tebakan kamu[/bold] (Sisa {game.attempts}x kesempatan)")
         valid, msg = game.validate_guess(guess)
         
         if not valid:
-            console.print(f"[bold red]❌ {msg}[/bold red]")
+            console.print(f"[bold red]⚠️ {msg}[/bold red]")
             continue
 
-        game.make_move(guess)
-        WordleUI.render_board(game)
+        is_correct = game.make_move(guess)
+        ScrambleUI.render_history(game)
 
-        if game.is_won():
-            console.print(f"\n🎉 [bold green]EXCELLENT! Kamu berhasil menebak kata: {game.target_word}[/bold green]\n")
+        if is_correct:
+            console.print(f"\n🎉 [bold green]EXCELLENT! Tebakanmu benar: {game.target_word}[/bold green]\n")
             return
 
-    console.print(f"\n💀 [bold red]GAME OVER![/bold red] Kata yang benar adalah: [bold cyan]{game.target_word}[/bold cyan]\n")
+    console.print(f"\n💀 [bold red]GAME OVER![/bold red] Jawaban yang benar adalah: [bold cyan]{game.target_word}[/bold cyan]\n")
 
 if __name__ == "__main__":
     main()

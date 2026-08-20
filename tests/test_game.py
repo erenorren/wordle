@@ -1,21 +1,20 @@
-import pytest
-from src.game import WordleGame
+from src.game import ScrambleGame
 
-def test_evaluate_guess_correct():
-    game = WordleGame()
-    game.target_word = "CYBER"
-    result = game.evaluate_guess("CYBER")
-    assert result == ["CORRECT", "CORRECT", "CORRECT", "CORRECT", "CORRECT"]
+def test_scramble_word_different_from_target():
+    game = ScrambleGame()
+    # Memastikan hasil acakan huruf tidak sama persis dengan kata asli
+    scrambled_clean = game.scrambled_word.replace(" ", "")
+    assert scrambled_clean != game.target_word
+    assert sorted(scrambled_clean) == sorted(game.target_word)
 
-def test_evaluate_guess_partial():
-    game = WordleGame()
-    game.target_word = "CYBER"
-    result = game.evaluate_guess("CRAZY")
-    assert result[0] == "CORRECT"   # C
-    assert result[1] == "PRESENT"   # R (ada di CYBER tapi beda posisi)
+def test_make_move_correct():
+    game = ScrambleGame()
+    game.target_word = "GREEN"
+    assert game.make_move("GREEN") is True
+    assert game.is_won() is True
 
-def test_game_over_loss():
-    game = WordleGame(max_attempts=1)
-    game.make_move("WRONG")
-    assert game.is_game_over() is True
-    assert game.is_won() is False
+def test_make_move_wrong():
+    game = ScrambleGame()
+    game.target_word = "GREEN"
+    assert game.make_move("WATER") is False
+    assert game.attempts == 2

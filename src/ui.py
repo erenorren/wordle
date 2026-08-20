@@ -1,31 +1,24 @@
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Prompt
-from src.game import WordleGame
+from src.game import ScrambleGame
 
 console = Console()
 
-class WordleUI:
+class ScrambleUI:
     @staticmethod
-    def show_banner():
+    def show_banner(scrambled_word: str):
         console.print(
             Panel.fit(
-                "[bold cyan]🎯 WORDLE CLI PROFESSIONAL[/bold cyan]\n"
-                "[dim]Built with Python & Rich | Modular Architecture[/dim]",
+                f"[bold cyan]🔤 WORD SCRAMBLE GAME[/bold cyan]\n\n"
+                f"Susun huruf acak ini: [bold yellow]{scrambled_word}[/bold yellow]",
                 border_style="cyan"
             )
         )
 
     @staticmethod
-    def render_board(game: WordleGame):
-        console.print("\n[bold]Papan Permainan:[/bold]")
-        for guess, evals in game.history:
-            formatted_letters = []
-            for char, status in zip(guess, evals):
-                if status == "CORRECT":
-                    formatted_letters.append(f"[bold white on green] {char} [/bold white on green]")
-                elif status == "PRESENT":
-                    formatted_letters.append(f"[bold black on yellow] {char} [/bold black on yellow]")
-                else:
-                    formatted_letters.append(f"[bold white on bright_black] {char} [/bold white on bright_black]")
-            console.print(" ".join(formatted_letters))
+    def render_history(game: ScrambleGame):
+        if game.history:
+            console.print("\n[bold]Riwayat Tebakan Salah:[/bold]")
+            for guess in game.history:
+                if guess != game.target_word:
+                    console.print(f"[dim red]❌ {guess}[/dim red]")
